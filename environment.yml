@@ -163,4 +163,3 @@ dependencies:
       - uvicorn==0.34.3
       - watchdog==6.0.0
       - xyzservices==2025.4.0
-prefix: C:\Users\arnab\miniconda3\envs\ragEnv

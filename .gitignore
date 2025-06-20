@@ -16,3 +16,6 @@
 # Frontend/node (if applicable)
 node_modules/
 dist/
+
+**/cache/
+**/map_cache/

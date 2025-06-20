@@ -1,0 +1,17 @@
+*.gguf
+*.faiss
+*.jpg
+*.png
+**/__pycache__/
+
+# IDE-specific
+.vscode/
+.idea/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Frontend/node (if applicable)
+node_modules/
+dist/
+bui

@@ -1,0 +1,47 @@
+{
+  "student": {
+    "id": "S12345",
+    "name": "Arnab",
+    "age": 19,
+    "date": "2025-05-20"
+  },
+  "test_context": {
+    "type": "Fitness Evaluation",
+    "source_pdf": "fitness_assessment_protocols_vr2025.pdf",
+    "description": "VR simulation mimicking physical fitness tests based on standard protocols. Includes a theoretical quiz."
+  },
+  "vr_simulation_results": {
+    "session_duration_seconds": 900,
+    "metrics": {
+      "cardio_endurance_score": 78,
+      "muscular_strength_score": 84,
+      "reaction_time_ms": 245,
+      "balance_score": 90,
+      "flexibility_score": 72,
+      "fatigue_index": 0.18,
+      "errors_made": 1,
+      "tasks_completed": 10,
+      "avg_heart_rate_bpm": 138
+    },
+    "engagement_level": "high",
+    "instructor_comments": "Impressive balance and strength. Could improve flexibility routines."
+  },
+  "quiz_results": {
+    "topic": "Basic Fitness & Anatomy",
+    "total_questions": 15,
+    "correct_answers": 13,
+    "score_percentage": 86.7,
+    "time_taken_seconds": 410,
+    "difficulty_level": "medium",
+    "remarks": "Strong grasp on physiology; missed a couple on stretching techniques."
+  },
+  "rag_agent_summary": {
+    "insights_generated": true,
+    "summary": "Arnab demonstrates strong overall fitness with excellent performance in strength and balance tests. Quiz results reflect good theoretical understanding. Slight improvement needed in flexibility training and injury prevention knowledge.",
+    "recommendations": [
+      "Add dynamic stretching to warm-ups.",
+      "Review injury prevention protocols in the provided material.",
+      "Retest in 2 weeks to track flexibility gains."
+    ]
+  }
+}

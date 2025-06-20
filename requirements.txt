@@ -1,0 +1,13 @@
+pymupdf
+llama-cpp-python
+sentence-transformers
+faiss-cpu
+numpy
+scikit-learn
+streamlit
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+pymongo
+python-magic-bin

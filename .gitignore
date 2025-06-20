@@ -4,6 +4,8 @@
 *.png
 **/__pycache__/
 
+*.pdf
+
 # IDE-specific
 .vscode/
 .idea/
@@ -14,4 +16,3 @@
 # Frontend/node (if applicable)
 node_modules/
 dist/
-bui

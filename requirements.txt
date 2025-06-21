@@ -11,3 +11,8 @@ python-multipart
 python-dotenv
 pymongo
 python-magic-bin
+folium
+streamlit-folium
+geopandas
+osmnx
+contextily

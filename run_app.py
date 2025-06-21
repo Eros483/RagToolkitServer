@@ -9,3 +9,4 @@ frontend = subprocess.Popen(["streamlit", "run", "frontend/app.py"])
 # Optional: Wait for both (Ctrl+C will interrupt both)
 backend.wait()
 frontend.wait()
+#runs code in one go.

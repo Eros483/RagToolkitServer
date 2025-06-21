@@ -150,6 +150,8 @@ st.set_page_config(
     layout="wide"
 )
 
+logo_path="company_logo/logo.png"
+
 # --- Session State Initialization ---
 if 'page' not in st.session_state:
     st.session_state.page = "Dashboard"
@@ -171,8 +173,9 @@ if 'persistent_index_status' not in st.session_state:
     st.session_state.persistent_index_status = {}
 
 # --- Sidebar ---
-st.sidebar.title("RAG-Toolkit")
+st.sidebar.image(image=logo_path, use_container_width=True)
 st.sidebar.markdown("---")
+
 
 page = st.sidebar.radio(
     "Navigation",

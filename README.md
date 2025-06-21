@@ -7,10 +7,10 @@ A modular, GPU-accelerated Retrieval-Augmented Generation system built for [Crit
 ## 📦 Repository
 
 Clone the deployment-ready project:
-
-```git clone https://github.com/Eros483/rag-runner-deployment
+```
+git clone https://github.com/Eros483/rag-runner-deployment
 cd rag-runner-deployment
-
+```
 ⚙️ Environment Setup
 We recommend using Anaconda for environment management.
 

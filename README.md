@@ -45,15 +45,65 @@ python run_app.py
 ```
 ---
 ## Project Structure
-rag-runner-deployment
-│   environment.yml
-│   README.md
-│   requirements.txt
-│
-├───backend
-│       main.py
-│       model_loader.py
-│
-├───frontend
-│       app.py
-│       utils.py
+```
+D:.
+|   .env
+|   .gitignore
+|   environment.yml
+|   README.md
+|   requirements.txt
+|   run_app.py
+|   test.ipynb
+|   todo.txt
+|
++---backend
+|   |   main.py
+|   |   setup.py
+|   |
+|   +---core
+|   |   |   config.py
+|   |   |   models.py
+|   |
+|   +---database
+|   |   |   mongodb_client.py
+|   |
+|   +---metrics
+|   |
+|   +---models
+|   |   |   Llama-3.2-8B-Instruct-Q5_K_M.gguf
+|   |   |   llm_model.py
+|   |
+|   +---mongodb_sample_images
+|   |
+|   +---persistent_data
+|   |       permanent_rag_index.faiss
+|   |       permanent_rag_index.json
+|   |
+|   +---routers
+|   |   |   evaluator_router.py
+|   |   |   image_router.py
+|   |   |   persistent_rag_router.py
+|   |   |   rag_router.py
+|   |   |   summarizer_router.py
+|   |
+|   +---sample_documents
+|   |
+|   +---services
+|   |   |   evaluator_service.py
+|   |   |   image_indexing_service.py
+|   |   |   persistent_index.py
+|   |   |   rag_service.py
+|   |   |   summarizer_service.py
+
++---frontend
+|   |   app.py
+|   |
+|   +---company_logo
+|   |       logo.png
+|   |
+|   \---map_cache
+|           mumbai_basic.pkl
+```
+---
+## 🛠️ Features
+

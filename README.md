@@ -106,4 +106,4 @@ D:.
 ```
 ---
 ## 🛠️ Features
-
+![Preview of Features](assets/dashboard.png)

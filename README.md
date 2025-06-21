@@ -1,6 +1,8 @@
 # 🧠 RAG-Toolkit
 
-A modular, GPU-accelerated Retrieval-Augmented Generation system built for [Critical AI](https://criticalai.in/). This toolkit integrates a FastAPI backend and a Streamlit frontend, with support for `llama-cpp-python` and custom embeddings.
+A modular, GPU-accelerated Retrieval-Augmented Generation system built for [Critical AI](https://criticalai.in/). This toolkit integrates a FastAPI backend and a Streamlit frontend, with support for `llama-cpp-python` LLMs and custom embeddings.
+
+Everything runs completely locally, and offline, protecting your data, and removing any privacy concerns.
 
 ---
 
@@ -44,7 +46,7 @@ pip install llama-cpp-python --no-cache-dir --verbose
 python run_app.py
 ```
 ---
-## Project Structure
+## 💡 Project Structure
 ```
 D:.
 |   .env
@@ -105,5 +107,37 @@ D:.
 |           mumbai_basic.pkl
 ```
 ---
-## 🛠️ Features
+## 🛠️ Frontend Preview
 ![Preview of Features](assets/dashboard.png)
+
+---
+## ⭐ Guide to available features
+1. Knowledge Base Manager
+    - Allows you to upload documents (supports .pdf, .docx, .txt) for persistent indexing.
+    - Is retained independent of session, and can be utilised in RAG Chatbot.
+2. RAG Chatbot
+    - Allows you to chat with specialised llama 3.2, based on information fed to the knowledge base manager.
+    - Allows functionality to further upload documents, for additionally specialised conversations.
+    - Pulls images from MongoDB as relevant to query for greater detailing.
+    - Pulls OSM mapping to any relevant cities and locations as mentioned in the query/response. 
+        - Supported Cities: Mumbai
+3. Document Summariser
+    - Provides succinct summary of any and all documents provided.
+4. Evaluation Assistant
+    - Allows upload of a metrics file containing evaluation information
+        - supports: *.json, *.pdf, *.txt, *.docx
+    - Allows upload of a context file document for specialised chat
+5. Max Tokens
+    - Allows control over response lengths.
+---
+## 🧑‍💻 Upcoming Features
+1. Adding support for asking questions by voice.
+2. Extending supported OSM mapping.
+---
+## 💜 Notes
+1. Must run first instance of the app with internet connection, to ensure all relevant files and dependencies are installed. Subsequent runs can run locally.
+2. Modify mongoDB access in .env so that the app can access the relevant database.
+    - Alternatively create custom mongoDB database by
+        - Ensuring `mongod` and `mongosh` are accessible by terminal.
+        - Utilising `test.ipynb`to manually upload images to mongoDB.
+---

@@ -1,7 +1,6 @@
 *.gguf
 *.faiss
 *.jpg
-*.png
 **/__pycache__/
 
 *.pdf
@@ -19,3 +18,5 @@ dist/
 
 **/cache/
 **/map_cache/
+
+backend/mongodb_sample_images/

@@ -17,7 +17,7 @@ cd rag-runner-deployment
 ## ⚙️ Environment Setup
 1. We recommend using Anaconda for environment management.
 
-2. Create the environment using the provided environment.yml, and activate it:
+2. Create the environment using the provided environment.yml (** Make sure to remove llama-cpp-python from yml file **), and activate it:
 ```
 conda env create -f environment.yml
 conda activate ragEnv

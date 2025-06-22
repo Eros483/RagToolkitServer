@@ -9,6 +9,9 @@ import osmnx as ox
 import pickle
 from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
+import whisper
+
+model_audio=whisper.load_model("base")
 
 # --- Configuration ---
 FASTAPI_URL = "http://127.0.0.1:8000" # Ensure your FastAPI backend is running on this host and port.
@@ -343,8 +346,26 @@ elif st.session_state.page == "RAG Chatbot":
                             key=f"folium_map_{i}" # Unique key for each map in history
                         )
                         st.caption(f"Map data © OpenStreetMap contributors. Amenities from OpenStreetMap.")
-
-    chat_input = st.chat_input("Ask a question about the document...", disabled=not chat_enabled)
+    col_chat, col_audio=st.columns([3.5,0.5])
+    chat_input=""
+    text_input=""
+    audio_input=""
+    with col_chat:
+        text_input = st.chat_input("Ask a question about the document...", disabled=not chat_enabled or audio_input)
+        if text_input:
+            chat_input=text_input
+    with col_audio:
+        audio_input=st.audio_input(label="", disabled=not chat_enabled or text_input, label_visibility="collapsed")
+        if audio_input:
+            st.info("Audio is being transcribed.")
+            result=model_audio.transcribe(audio_input)
+            if result:
+                print(result)
+                chat_input=result
+            else:
+                st.error("audio not clearly transcribable. Please retry")
+                if st.button("Rerun"):
+                    st.rerun()
     if chat_input:
         st.chat_message("user").write(chat_input)
         st.session_state.rag_history.append(("user", chat_input)) # Store user message as string

@@ -346,12 +346,12 @@ elif st.session_state.page == "RAG Chatbot":
                             key=f"folium_map_{i}" # Unique key for each map in history
                         )
                         st.caption(f"Map data © OpenStreetMap contributors. Amenities from OpenStreetMap.")
-    col_chat, col_audio=st.columns([3.5,0.5])
+    col_chat, col_audio=st.columns([4,0.5])
     chat_input=""
     text_input=""
     audio_input=""
     with col_chat:
-        text_input = st.chat_input("Ask a question about the document...", disabled=not chat_enabled or audio_input)
+        text_input = st.chat_input("Ask a question about the document via text or use the provided microphone input option..", disabled=not chat_enabled or audio_input)
         if text_input:
             chat_input=text_input
     with col_audio:

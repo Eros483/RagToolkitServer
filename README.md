@@ -118,6 +118,7 @@ D:.
     - Is retained independent of session, and can be utilised in RAG Chatbot.
 2. RAG Chatbot
     - Allows you to chat with specialised llama 3.2, based on information fed to the knowledge base manager.
+        - Supports both voice and text input methods.
     - Allows functionality to further upload documents, for additionally specialised conversations.
     - Pulls images from MongoDB as relevant to query for greater detailing.
     - Pulls OSM mapping to any relevant cities and locations as mentioned in the query/response. 

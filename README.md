@@ -43,8 +43,8 @@ pip install llama-cpp-python --no-cache-dir --verbose
 ---
 
 ## 🚀 Running the App
-Open the directory where the repository was cloned.
-Click `run_servers.bat` to start the backend and frontend servers.
+1. Open the directory where the repository was cloned.
+2. Click `run_servers.bat` to start the backend and frontend servers.
 #### Advisory: Wait 30 seconds for the servers to start before proceeding with requests. Progress in LLM warmup can be viewed on the launched terminals.
 ---
 ## 💡 Project Structure

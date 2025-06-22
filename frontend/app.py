@@ -214,6 +214,15 @@ if st.sidebar.button("Reset Current Page"):
         st.session_state.eval_metrics_file_data = None
     elif st.session_state.page == "Knowledge Base Manager":
         st.session_state.persistent_index_status = {}
+
+    st.cache_data.clear()
+
+    try:
+        requests.post(f"{FASTAPI_URL}/rag/clear_session/", timeout=5)
+        requests.post(f"{FASTAPI_URL}/evaluator/clear_session/", timeout=5)
+    except:
+        pass
+    
     st.rerun()
     st.sidebar.info("Page reset initiated. Any inputs on this page might have been cleared.")
 

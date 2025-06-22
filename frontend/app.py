@@ -12,6 +12,7 @@ from typing import Optional, Dict, Any, Tuple
 import whisper
 import tempfile
 
+
 model_audio=whisper.load_model("base")
 
 # --- Configuration ---

@@ -43,16 +43,9 @@ pip install llama-cpp-python --no-cache-dir --verbose
 ---
 
 ## 🚀 Running the App
-Open the first anaconda terminal, and navigate to the project directory.
-```
-cd backend
-uvicorn main:app --reload
-```
-After it loads in succesfully, open the second anaconda terminal, and navigate to the project directory.
-```
-cd frontend
-streamlit run app.py
-```
+Open the directory where the repository was cloned.
+Click `run_servers.bat` to start the backend and frontend servers.
+#### Advisory: Wait 30 seconds for the servers to start before proceeding with requests. Progress in LLM warmup can be viewed on the launched terminals.
 ---
 ## 💡 Project Structure
 ```

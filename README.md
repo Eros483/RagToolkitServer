@@ -43,8 +43,15 @@ pip install llama-cpp-python --no-cache-dir --verbose
 ---
 
 ## 🚀 Running the App
+Open the first anaconda terminal, and navigate to the project directory.
 ```
-python run_app.py
+cd backend
+uvicorn main:app --reload
+```
+After it loads in succesfully, open the second anaconda terminal, and navigate to the project directory.
+```
+cd frontend
+streamlit run app.py
 ```
 ---
 ## 💡 Project Structure

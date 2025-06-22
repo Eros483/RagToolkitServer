@@ -10,6 +10,7 @@ import pickle
 from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
 import whisper
+import tempfile
 
 model_audio=whisper.load_model("base")
 
@@ -222,7 +223,7 @@ if st.sidebar.button("Reset Current Page"):
         requests.post(f"{FASTAPI_URL}/evaluator/clear_session/", timeout=5)
     except:
         pass
-    
+
     st.rerun()
     st.sidebar.info("Page reset initiated. Any inputs on this page might have been cleared.")
 
@@ -307,6 +308,55 @@ elif st.session_state.page == "RAG Chatbot":
         st.success("Session document previously processed for RAG. You can now chat.")
 
     st.markdown("---")
+    # st.subheader("Chat History")
+
+    # chat_enabled = st.session_state.rag_file_uploaded or global_kb_active
+
+    # if not st.session_state.rag_history:
+    #     if not chat_enabled:
+    #         st.info("Upload a session document OR build/load the Global Knowledge Base to enable chat.")
+    #     else:
+    #         st.info("No messages yet. Type in the box below to start a conversation!")
+    # else:
+    #     for role, content in st.session_state.rag_history:
+    #         with st.chat_message(role):
+    #             if role == "user":
+    #                 st.markdown(content)
+    #             elif role == "assistant":
+    #                 # Assistant's content is now a dict with 'answer' and 'image_urls'
+    #                 st.markdown(content['answer'])
+    #                 if content['image_urls']:
+    #                     st.markdown("**Relevant Images:**")
+    #                     # Use columns for a grid-like layout of thumbnails
+    #                     cols = st.columns(3) # Display up to 3 images per row
+    #                     for i, image_url in enumerate(content['image_urls']):
+    #                         with cols[i % 3]:
+    #                             try:
+    #                                 # Extract image name for display
+    #                                 image_name_from_url = os.path.basename(image_url)
+    #                                 # Create an expander for each image
+    #                                 with st.expander(f"View {image_name_from_url}", expanded=False):
+    #                                     # Display full-size image inside the expander
+    #                                     st.image(image_url, caption=f"Full Size: {image_name_from_url}", use_container_width=True)
+    #                                     # Optionally, fetch and display more metadata here if the backend provided it
+    #                                     # (e.g., if image_urls also included dicts with 'image_name', 'labels' etc.)
+    #                             except Exception as img_e:
+    #                                 st.warning(f"Could not display image from {image_url}: {img_e}")
+
+    #                 if content.get('map_city'):
+    #                     st.markdown(f"**Map of {content['map_city']}:**")
+    #                     map_generator=SimpleMapGenerator()
+    #                     folium_map=map_generator.create_simple_map(content['map_city'])
+
+    #                     st_folium(
+    #                         folium_map,
+    #                         width=700, # Adjust width as needed for chat column
+    #                         height=450, # Adjust height
+    #                         returned_objects=[], # We don't need interactions data for history display
+    #                         key=f"folium_map_{i}" # Unique key for each map in history
+    #                     )
+    #                     st.caption(f"Map data © OpenStreetMap contributors. Amenities from OpenStreetMap.")
+
     st.subheader("Chat History")
 
     chat_enabled = st.session_state.rag_file_uploaded or global_kb_active
@@ -317,7 +367,7 @@ elif st.session_state.page == "RAG Chatbot":
         else:
             st.info("No messages yet. Type in the box below to start a conversation!")
     else:
-        for role, content in st.session_state.rag_history:
+        for msg_index, (role, content) in enumerate(st.session_state.rag_history):
             with st.chat_message(role):
                 if role == "user":
                     st.markdown(content)
@@ -328,8 +378,8 @@ elif st.session_state.page == "RAG Chatbot":
                         st.markdown("**Relevant Images:**")
                         # Use columns for a grid-like layout of thumbnails
                         cols = st.columns(3) # Display up to 3 images per row
-                        for i, image_url in enumerate(content['image_urls']):
-                            with cols[i % 3]:
+                        for img_index, image_url in enumerate(content['image_urls']):
+                            with cols[img_index % 3]:
                                 try:
                                     # Extract image name for display
                                     image_name_from_url = os.path.basename(image_url)
@@ -352,40 +402,220 @@ elif st.session_state.page == "RAG Chatbot":
                             width=700, # Adjust width as needed for chat column
                             height=450, # Adjust height
                             returned_objects=[], # We don't need interactions data for history display
-                            key=f"folium_map_{i}" # Unique key for each map in history
+                            key=f"folium_map_msg_{msg_index}" # Unique key using message index instead of image index
                         )
                         st.caption(f"Map data © OpenStreetMap contributors. Amenities from OpenStreetMap.")
-    col_chat, col_audio=st.columns([4,0.5])
-    chat_input=""
-    text_input=""
-    audio_input=""
-    with col_chat:
-        text_input = st.chat_input("Ask a question about the document via text or use the provided microphone input option..", disabled=not chat_enabled or audio_input)
-        if text_input:
-            chat_input=text_input
-    with col_audio:
-        audio_input=st.audio_input(label="", disabled=not chat_enabled or text_input, label_visibility="collapsed")
-        if audio_input:
-            st.info("Audio is being transcribed.")
-            result=model_audio.transcribe(audio_input)
-            if result:
-                print(result)
-                chat_input=result
-            else:
-                st.error("audio not clearly transcribable. Please retry")
-                if st.button("Rerun"):
-                    st.rerun()
+
+    # chat_input = ""
+        
+    #     # Text input
+    # text_input = st.chat_input("Ask a question about the document via text or use the microphone button below...", disabled=not chat_enabled)
+    # if text_input:
+    #     chat_input = text_input
+    #     st.session_state.audio_processed = False
+
+    # # Audio input section - Fixed
+    # st.markdown("**Or use voice input:**")
+    # audio_input = st.audio_input("Record your question", disabled=not chat_enabled)
+    
+    # if audio_input is not None and not st.session_state.get('audio_processed', False):
+    #     with st.spinner("Transcribing audio..."):
+    #         try:
+    #             # Create temporary file for audio processing
+    #             with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+    #                 tmp_file.write(audio_input.read())
+    #                 tmp_file_path = tmp_file.name
+                
+    #             # Transcribe audio
+    #             result = model_audio.transcribe(tmp_file_path)
+                
+    #             if result and result.get("text") and result["text"].strip():
+    #                 transcribed_text = result["text"].strip()
+    #                 st.success(f"Transcribed: {transcribed_text}")
+    #                 chat_input = transcribed_text
+    #                 st.session_state.audio_processed = True
+    #             else:
+    #                 st.error("Audio not clearly transcribable. Please try again.")
+    #                 st.session_state.audio_processed = False
+                    
+    #         except Exception as e:
+    #             st.error(f"Error processing audio: {e}")
+    #             st.session_state.audio_processed = False
+    #         finally:
+    #             # Clean up temporary file
+    #             try:
+    #                 if 'tmp_file_path' in locals():
+    #                     os.unlink(tmp_file_path)
+    #             except Exception:
+    #                 pass
+
+
+    # if chat_input:
+    #     if st.session_state.get('audio_processed', False):
+    #         st.session_state.audio_processed=False
+
+    #     st.chat_message("user").write(chat_input)
+    #     st.session_state.rag_history.append(("user", chat_input)) # Store user message as string
+
+    #     with st.spinner("AI is thinking..."):
+    #         try:
+    #             formatted_history_for_backend = []
+    #             # Iterate through history to format for backend.
+    #             # Note: `content` for assistant is now a dict, so we need to extract 'answer'.
+    #             # The history for the backend should be (question_str, answer_str) tuples.
+    #             for i in range(0, len(st.session_state.rag_history) -1, 2):
+    #                 if (i + 1) < len(st.session_state.rag_history):
+    #                     user_msg_text = st.session_state.rag_history[i][1]
+    #                     # For assistant's previous responses, extract the 'answer' text
+    #                     ai_msg_content = st.session_state.rag_history[i+1][1]
+    #                     ai_msg_text = ai_msg_content.get('answer', '') if isinstance(ai_msg_content, dict) else ai_msg_content
+    #                     formatted_history_for_backend.append((user_msg_text, ai_msg_text))
+
+    #             payload = {
+    #                 "question": chat_input,
+    #                 "history": formatted_history_for_backend,
+    #                 "max_tokens": max_tokens
+    #             }
+                
+    #             # IMPORTANT: Specify response_model for the frontend request as well
+    #             # FastAPI will automatically parse it, but requests library returns raw JSON
+    #             response = requests.post(f"{FASTAPI_URL}/rag/chat/", json=payload)
+    #             response.raise_for_status()
+
+    #             # Get the full response dictionary
+    #             backend_response_data = response.json()
+                
+    #             # Check if 'answer' key exists, provide default if not
+    #             ai_response_text = backend_response_data.get("answer", "Error: No answer from AI.")
+    #             # Get image URLs, provide empty list if not present
+    #             returned_image_urls = backend_response_data.get("image_urls", [])
+
+    #             map_city_to_display=None
+    #             query_lower=chat_input.lower()
+    #             ai_response_lower=ai_response_text.lower()
+
+    #             if "mumbai" in query_lower or "mumbai" in ai_response_lower:
+    #                 map_city_to_display="Mumbai"
+
+    #             assistant_message_content = {
+    #                 "answer": ai_response_text,
+    #                 "image_urls": returned_image_urls
+    #             }
+
+    #             if map_city_to_display:
+    #                 assistant_message_content["map_city"]=map_city_to_display
+
+    #             # Store the full dictionary content for the assistant's message in history
+    #             st.session_state.rag_history.append(("assistant",assistant_message_content))
+                
+    #             # Re-run to display the new messages (and images)
+    #             st.rerun()
+
+    #         except requests.exceptions.RequestException as e:
+    #             st.error(f"Error communicating with RAG backend: {e}")
+    #             st.chat_message("assistant").write("Sorry, I'm having trouble connecting to the RAG system right now. Please ensure the backend is running and a permanent index is loaded, or a session document is uploaded.")
+    #         except Exception as e:
+    #             st.error(f"An unexpected error occurred: {e}")
+    #             st.chat_message("assistant").write("An unexpected error occurred while processing your request.")
+    chat_input = ""
+    
+    # Initialize audio session state variables if not exists
+    if 'audio_widget_key' not in st.session_state:
+        st.session_state.audio_widget_key = 0
+    if 'pending_transcription' not in st.session_state:
+        st.session_state.pending_transcription = None
+    if 'last_processed_audio' not in st.session_state:
+        st.session_state.last_processed_audio = None
+        
+    # Text input
+    text_input = st.chat_input("Ask a question about the document via text or use the microphone button below...", disabled=not chat_enabled)
+    if text_input:
+        chat_input = text_input
+        # Clear any pending audio transcription when text is used
+        st.session_state.pending_transcription = None
+
+    # Audio input section - Completely Fixed
+    st.markdown("**Or use voice input:**")
+    
+    # Create audio input with dynamic key to force reset after processing
+    audio_input = st.audio_input(
+        "Record your question", 
+        disabled=not chat_enabled, 
+        key=f"audio_recorder_{st.session_state.audio_widget_key}"
+    )
+    
+    # Only process audio if we have input and haven't processed this exact audio before
+    if audio_input is not None:
+        # Read audio bytes
+        audio_bytes = audio_input.getvalue()
+        
+        # Create a simple hash to identify this audio recording
+        import hashlib
+        audio_hash = hashlib.md5(audio_bytes).hexdigest()
+        
+        # Only process if this is a different audio file than last processed
+        if audio_hash != st.session_state.last_processed_audio:
+            with st.spinner("Transcribing audio..."):
+                try:
+                    # Create temporary file for audio processing
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+                        tmp_file.write(audio_bytes)
+                        tmp_file_path = tmp_file.name
+                    
+                    # Transcribe audio
+                    result = model_audio.transcribe(tmp_file_path)
+                    
+                    if result and result.get("text") and result["text"].strip():
+                        transcribed_text = result["text"].strip()
+                        st.success(f"Transcribed: {transcribed_text}")
+                        
+                        # Store transcription and mark this audio as processed
+                        st.session_state.pending_transcription = transcribed_text
+                        st.session_state.last_processed_audio = audio_hash
+                        
+                        # Force widget reset by incrementing key
+                        st.session_state.audio_widget_key += 1
+                        st.rerun()
+                        
+                    else:
+                        st.error("Audio not clearly transcribable. Please try again.")
+                        st.session_state.last_processed_audio = audio_hash  # Mark as processed to avoid retry
+                        
+                except Exception as e:
+                    st.error(f"Error processing audio: {e}")
+                    st.session_state.last_processed_audio = audio_hash  # Mark as processed to avoid retry
+                finally:
+                    # Clean up temporary file
+                    try:
+                        if 'tmp_file_path' in locals():
+                            os.unlink(tmp_file_path)
+                    except Exception:
+                        pass
+
+    # Use pending transcription if available
+    if st.session_state.pending_transcription and not chat_input:
+        chat_input = st.session_state.pending_transcription
+        # Clear pending transcription after using it
+        st.session_state.pending_transcription = None
+
+    # Clear audio button
+    if st.session_state.last_processed_audio or st.session_state.pending_transcription:
+        if st.button("🗑️ Clear Audio & Reset", key="clear_audio_btn"):
+            st.session_state.pending_transcription = None
+            st.session_state.last_processed_audio = None
+            st.session_state.audio_widget_key += 1
+            st.rerun()
+
+    # Process chat input (text or transcribed audio)
     if chat_input:
         st.chat_message("user").write(chat_input)
-        st.session_state.rag_history.append(("user", chat_input)) # Store user message as string
+        st.session_state.rag_history.append(("user", chat_input))
 
         with st.spinner("AI is thinking..."):
             try:
                 formatted_history_for_backend = []
-                # Iterate through history to format for backend.
-                # Note: `content` for assistant is now a dict, so we need to extract 'answer'.
-                # The history for the backend should be (question_str, answer_str) tuples.
-                for i in range(0, len(st.session_state.rag_history) -1, 2):
+                # Iterate through history to format for backend
+                for i in range(0, len(st.session_state.rag_history) - 1, 2):
                     if (i + 1) < len(st.session_state.rag_history):
                         user_msg_text = st.session_state.rag_history[i][1]
                         # For assistant's previous responses, extract the 'answer' text
@@ -399,8 +629,6 @@ elif st.session_state.page == "RAG Chatbot":
                     "max_tokens": max_tokens
                 }
                 
-                # IMPORTANT: Specify response_model for the frontend request as well
-                # FastAPI will automatically parse it, but requests library returns raw JSON
                 response = requests.post(f"{FASTAPI_URL}/rag/chat/", json=payload)
                 response.raise_for_status()
 
@@ -412,12 +640,12 @@ elif st.session_state.page == "RAG Chatbot":
                 # Get image URLs, provide empty list if not present
                 returned_image_urls = backend_response_data.get("image_urls", [])
 
-                map_city_to_display=None
-                query_lower=chat_input.lower()
-                ai_response_lower=ai_response_text.lower()
+                map_city_to_display = None
+                query_lower = chat_input.lower()
+                ai_response_lower = ai_response_text.lower()
 
                 if "mumbai" in query_lower or "mumbai" in ai_response_lower:
-                    map_city_to_display="Mumbai"
+                    map_city_to_display = "Mumbai"
 
                 assistant_message_content = {
                     "answer": ai_response_text,
@@ -425,10 +653,10 @@ elif st.session_state.page == "RAG Chatbot":
                 }
 
                 if map_city_to_display:
-                    assistant_message_content["map_city"]=map_city_to_display
+                    assistant_message_content["map_city"] = map_city_to_display
 
                 # Store the full dictionary content for the assistant's message in history
-                st.session_state.rag_history.append(("assistant",assistant_message_content))
+                st.session_state.rag_history.append(("assistant", assistant_message_content))
                 
                 # Re-run to display the new messages (and images)
                 st.rerun()
@@ -439,7 +667,6 @@ elif st.session_state.page == "RAG Chatbot":
             except Exception as e:
                 st.error(f"An unexpected error occurred: {e}")
                 st.chat_message("assistant").write("An unexpected error occurred while processing your request.")
-
 
 elif st.session_state.page == "Document Summarizer":
     st.header("📄 Document Summarizer")

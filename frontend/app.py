@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
 import whisper
 import tempfile
-
+from gtts import gTTS
 
 model_audio=whisper.load_model("base")
 
@@ -392,7 +392,28 @@ elif st.session_state.page == "RAG Chatbot":
                                         # (e.g., if image_urls also included dicts with 'image_name', 'labels' etc.)
                                 except Exception as img_e:
                                     st.warning(f"Could not display image from {image_url}: {img_e}")
+                    
+                    if content['answer'] and st.button("Listen to answer", key=f"tts_button_{msg_index}"):
+                        tts_text=content['answer']
+                        # Use the 'pyttsx3' library for text-to-speech synthesis
+                        try:
+                            with st.spinner("Generating Audio.... "):
+                                tts=gTTS(text=tts_text, lang='en')
+                                with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+                                    audio_file_path=fp.name
+                                tts.save(audio_file_path)
 
+                                with open(audio_file_path, "rb") as f:
+                                    audio_bytes = f.read()
+                                st.audio(audio_bytes, format="audio/mp3", start_time=0)
+
+                                os.remove(audio_file_path)
+
+                        except Exception as e:
+                            st.error(f"Error generating audio: {e}")
+                            if 'audio_file_path' in locals() and os.path.exists(audio_file_path):
+                                os.remove(audio_file_path)
+                            
                     if content.get('map_city'):
                         st.markdown(f"**Map of {content['map_city']}:**")
                         map_generator=SimpleMapGenerator()

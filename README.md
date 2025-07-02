@@ -113,6 +113,7 @@ D:.
 
 ---
 ## ⭐ Guide to available features
+Entire I/O can be done in both voice and text.
 1. Knowledge Base Manager
     - Allows you to upload documents (supports .pdf, .docx, .txt) for persistent indexing.
     - Is retained independent of session, and can be utilised in RAG Chatbot.
@@ -133,8 +134,7 @@ D:.
     - Allows control over response lengths.
 ---
 ## 🧑‍💻 Upcoming Features
-1. Adding support for asking questions by voice.
-2. Extending supported OSM mapping.
+1. Extending supported OSM mapping.
 ---
 ## 💜 Notes
 1. Must run first instance of the app with internet connection, to ensure all relevant files and dependencies are installed. Subsequent runs can run locally.

@@ -1,12 +1,16 @@
 @echo off
-REM === Path to activate.bat ===
-set CONDA_BAT="C:\Users\arnab\miniconda3\Scripts\activate.bat"
+echo Starting Backend and Frontend Applications...
 
-REM === Launch Backend ===
-start "Backend" cmd /k call %CONDA_BAT% ragEnv ^& cd backend ^& uvicorn main:app --reload
+REM Initialize conda for this session
+call "%USERPROFILE%\anaconda3\Scripts\activate.bat"
 
-REM === Wait to prevent Conda temp file collision ===
-timeout /t 3 > nul
+REM Start backend server in new Anaconda prompt window
+start "Backend Server" cmd /k "call %USERPROFILE%\anaconda3\Scripts\activate.bat && conda activate ragEnv && cd backend && uvicorn main:app --reload"
 
-REM === Launch Frontend ===
-start "Frontend" cmd /k call %CONDA_BAT% ragEnv ^& cd frontend ^& streamlit run app.py
+REM Start frontend application in new Anaconda prompt window  
+start "Frontend App" cmd /k "call %USERPROFILE%\anaconda3\Scripts\activate.bat && conda activate ragEnv && cd frontend && streamlit run app.py"
+
+echo Both applications are starting...
+echo Backend will be available at: http://localhost:8000
+echo Frontend will be available at: http://localhost:8501
+pause

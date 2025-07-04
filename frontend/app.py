@@ -37,7 +37,8 @@ class SimpleMapGenerator:
             'delhi': (28.6139, 77.2090),
             'bangalore': (12.9716, 77.5946),
             'chennai': (13.0827, 80.2707),
-            'kolkata': (22.5726, 88.3639)
+            'kolkata': (22.5726, 88.3639),
+            'asc centre bangalore': (12.9698, 77.7500)  # ASC Centre coordinates
         }
         return city_centers.get(city_name.lower(), (19.0760, 72.8777))
     
@@ -98,52 +99,68 @@ class SimpleMapGenerator:
     def create_simple_map(self, city_name: str):
         """
         Creates a Folium map centered on the city with markers for key amenities.
+        Special handling for ASC Centre Bangalore.
         """
         center_lat, center_lon = self.get_city_center(city_name)
-        # Using a fixed zoom for initial display, can be dynamic later
-        m = folium.Map(location=[center_lat, center_lon], zoom_start=12, tiles='OpenStreetMap')
-
-        # Add a marker for the city center
-        folium.Marker(
-            [center_lat, center_lon],
-            popup=f"{city_name} City Center",
-            tooltip=f"Click for {city_name} info",
-            icon=folium.Icon(color='blue', icon='info-sign')
-        ).add_to(m)
-
-        # Load and add amenities if available
-        data = self.download_basic_city_data(city_name)
-        if data and 'amenities' in data and not data['amenities'].empty:
-            for idx, amenity in data['amenities'].iterrows():
-                try:
-                    # Use geometry.centroid for points, or geometry directly for polygons/lines
-                    # For simplicity, just use centroid for any geometry type to place a marker
-                    if amenity.geometry and amenity.geometry.geom_type in ['Point', 'LineString', 'Polygon']:
-                        point = amenity.geometry.centroid if amenity.geometry.geom_type != 'Point' else amenity.geometry
-                        
-                        amenity_type = amenity.get('amenity', 'Unknown')
-                        amenity_name = amenity.get('name', f'{amenity_type.title()} ({amenity.get("addr:housenumber", "")} {amenity.get("addr:street", "")})'.strip())
-                        
-                        color = {
-                            'hospital': 'red',
-                            'school': 'green',
-                            'police': 'blue',
-                            'fire_station': 'orange'
-                        }.get(amenity_type, 'gray') # Default to gray for other amenity types
-                        
-                        folium.Marker(
-                            [point.y, point.x], # Folium expects [latitude, longitude]
-                            popup=f"{amenity_name} ({amenity_type})",
-                            tooltip=amenity_name,
-                            icon=folium.Icon(color=color, icon='info-sign')
-                        ).add_to(m)
-                except Exception as marker_e:
-                    # Catch errors for individual markers, don't stop map generation
-                    print(f"Error adding amenity marker {amenity.get('name', 'N/A')}: {marker_e}")
-                    continue
+        
+        # Adjust zoom level based on location type
+        if "asc centre" in city_name.lower():
+            zoom_level = 15  # Higher zoom for specific location
         else:
-            st.warning(f"Could not load or find detailed amenity data for {city_name}. Displaying basic map.")
+            zoom_level = 12  # City-wide view
+        
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom_level, tiles='OpenStreetMap')
+
+        # Add a marker for the city center or specific location
+        if "asc centre" in city_name.lower():
+            folium.Marker(
+                [center_lat, center_lon],
+                popup="ASC Centre Bangalore",
+                tooltip="ASC Centre - Click for details",
+                icon=folium.Icon(color='red', icon='building', prefix='fa')
+            ).add_to(m)
+        else:
+            folium.Marker(
+                [center_lat, center_lon],
+                popup=f"{city_name} City Center",
+                tooltip=f"Click for {city_name} info",
+                icon=folium.Icon(color='blue', icon='info-sign')
+            ).add_to(m)
+
+        # Load and add amenities if available (skip for specific locations like ASC Centre)
+        if "asc centre" not in city_name.lower():
+            # Use the base city name for OSM data download
+            base_city = "Bangalore" if "bangalore" in city_name.lower() else city_name
+            data = self.download_basic_city_data(base_city)
             
+            if data and 'amenities' in data and not data['amenities'].empty:
+                for idx, amenity in data['amenities'].iterrows():
+                    try:
+                        if amenity.geometry and amenity.geometry.geom_type in ['Point', 'LineString', 'Polygon']:
+                            point = amenity.geometry.centroid if amenity.geometry.geom_type != 'Point' else amenity.geometry
+                            
+                            amenity_type = amenity.get('amenity', 'Unknown')
+                            amenity_name = amenity.get('name', f'{amenity_type.title()} ({amenity.get("addr:housenumber", "")} {amenity.get("addr:street", "")})'.strip())
+                            
+                            color = {
+                                'hospital': 'red',
+                                'school': 'green',
+                                'police': 'blue',
+                                'fire_station': 'orange'
+                            }.get(amenity_type, 'gray')
+                            
+                            folium.Marker(
+                                [point.y, point.x],
+                                popup=f"{amenity_name} ({amenity_type})",
+                                tooltip=amenity_name,
+                                icon=folium.Icon(color=color, icon='info-sign')
+                            ).add_to(m)
+                    except Exception as marker_e:
+                        print(f"Error adding amenity marker {amenity.get('name', 'N/A')}: {marker_e}")
+                        continue
+        else:
+            st.info(f"Displaying specific location: {city_name}")
+                
         return m
 
 
@@ -668,6 +685,16 @@ elif st.session_state.page == "RAG Chatbot":
 
                 if "mumbai" in query_lower or "mumbai" in ai_response_lower:
                     map_city_to_display = "Mumbai"
+                elif "bangalore" in query_lower or "bangalore" in ai_response_lower:
+                    map_city_to_display = "Bangalore"
+                elif "asc centre" in query_lower or "asc centre" in ai_response_lower:
+                    map_city_to_display = "ASC Centre Bangalore"
+                elif "delhi" in query_lower or "delhi" in ai_response_lower:
+                    map_city_to_display = "Delhi"
+                elif "chennai" in query_lower or "chennai" in ai_response_lower:
+                    map_city_to_display = "Chennai"
+                elif "kolkata" in query_lower or "kolkata" in ai_response_lower:
+                    map_city_to_display = "Kolkata"
 
                 assistant_message_content = {
                     "answer": ai_response_text,

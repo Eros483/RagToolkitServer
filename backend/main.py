@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from routers import rag_router, summarizer_router, evaluator_router, persistent_rag_router, image_router
+from routers import rag_router, summarizer_router, evaluator_router, persistent_rag_router, image_router, translator_router
 
 from services import persistent_index, image_indexing_service
 from database import mongodb_client
@@ -41,6 +41,7 @@ app.include_router(summarizer_router.router)
 app.include_router(evaluator_router.router)
 app.include_router(persistent_rag_router.router)
 app.include_router(image_router.router)
+app.include_router(translator_router.router)
 
 @app.get("/", tags=["Root"])
 async def root():

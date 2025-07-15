@@ -18,6 +18,34 @@ model_audio=whisper.load_model("base")
 # --- Configuration ---
 FASTAPI_URL = "http://127.0.0.1:8000" # Ensure your FastAPI backend is running on this host and port.
 
+def translate_text_if_needed(text: str, target_language: str) -> str:
+    """
+    Translates text to the target language if it's not English.
+    Returns the original text if target language is English or translation fails.
+    """
+    if target_language.lower() == "english" or not text.strip():
+        return text
+    
+    try:
+        # Call the translation endpoint
+        payload = {
+            "text": text,
+            "target_language": target_language
+        }
+        
+        response = requests.post(f"{FASTAPI_URL}/translator/translate_text/", json=payload, timeout=180)
+        response.raise_for_status()
+        
+        translation_result = response.json()
+        return translation_result.get("translated_text", text)
+        
+    except requests.exceptions.RequestException as e:
+        st.warning(f"Translation failed: {e}. Showing original text.")
+        return text
+    except Exception as e:
+        st.warning(f"Translation error: {e}. Showing original text.")
+        return text
+
 class SimpleMapGenerator:
     """
     Generates a basic interactive map of a given city using Folium and OSMnx.
@@ -192,6 +220,17 @@ if 'eval_metrics_file_data' not in st.session_state:
     st.session_state.eval_metrics_file_data = None
 if 'persistent_index_status' not in st.session_state:
     st.session_state.persistent_index_status = {}
+if "output_language" not in st.session_state: # New: Default output language
+    st.session_state.output_language = "English"
+if "output_language_code" not in st.session_state: # New: Default output language code
+    st.session_state.output_language_code = "en"
+
+
+SUPPORTED_LANGUAGES = {
+    "English": "en",
+    "Hindi": "hi",
+    "Tamil": "ta",
+}
 
 # --- Sidebar ---
 st.sidebar.image(image=logo_path, use_container_width=True)
@@ -299,6 +338,18 @@ elif st.session_state.page == "RAG Chatbot":
         st.warning("Global Knowledge Base is not loaded or is empty. RAG will only use session-specific documents if uploaded.")
         global_kb_active = False
 
+    selected_language_name = st.selectbox(
+        "Select Output Language:",
+        options=list(SUPPORTED_LANGUAGES.keys()),
+        index=list(SUPPORTED_LANGUAGES.keys()).index(st.session_state.output_language), # Set initial value from session state
+        key="output_language_select"
+    )
+    # Update session state when selection changes
+    if selected_language_name != st.session_state.output_language:
+        st.session_state.output_language = selected_language_name
+        st.session_state.output_language_code = SUPPORTED_LANGUAGES[selected_language_name]
+        st.rerun() # Rerun to apply language change
+        
     st.write("Upload a document (PDF, TXT, JSON) to ground your chat for this session, or rely on the Global Knowledge Base if active.")
 
     uploaded_file = st.file_uploader("Upload Session Document (Optional)", type=["pdf", "txt", "json"], key="rag_uploader")
@@ -415,7 +466,8 @@ elif st.session_state.page == "RAG Chatbot":
                         # Use the 'pyttsx3' library for text-to-speech synthesis
                         try:
                             with st.spinner("Generating Audio.... "):
-                                tts=gTTS(text=tts_text, lang='en')
+                                tts_language_code = st.session_state.output_language_code
+                                tts=gTTS(text=tts_text, lang=tts_language_code)
                                 with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
                                     audio_file_path=fp.name
                                 tts.save(audio_file_path)
@@ -676,6 +728,12 @@ elif st.session_state.page == "RAG Chatbot":
                 
                 # Check if 'answer' key exists, provide default if not
                 ai_response_text = backend_response_data.get("answer", "Error: No answer from AI.")
+
+            # TRANSLATION LOGIC - Translate the AI response if needed
+                if st.session_state.output_language != "English":
+                    with st.spinner(f"Translating to {st.session_state.output_language}..."):
+                        ai_response_text = translate_text_if_needed(ai_response_text, st.session_state.output_language)
+
                 # Get image URLs, provide empty list if not present
                 returned_image_urls = backend_response_data.get("image_urls", [])
 

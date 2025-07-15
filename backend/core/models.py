@@ -39,3 +39,19 @@ class RAGResponse(BaseModel):
     """
     answer: str
     image_urls: List[str]=[]
+
+class TranslateRequest(BaseModel):
+    """
+    Pydantic model for a translation request.
+    text: The text to be translated.
+    target_language: The language to translate the text into (e.g., "Hindi", "Spanish", "French").
+    """
+    text: str
+    target_language: str
+
+class TranslateResponse(BaseModel):
+    """
+    Pydantic model for a translation response.
+    translated_text: The translated text.
+    """
+    translated_text: str

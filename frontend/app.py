@@ -689,6 +689,7 @@ elif st.session_state.page == "RAG Chatbot":
                     map_city_to_display = "Bangalore"
                 elif "asc centre" in query_lower or "asc centre" in ai_response_lower:
                     map_city_to_display = "ASC Centre Bangalore"
+                    print("showing asc centre mapping")
                 elif "delhi" in query_lower or "delhi" in ai_response_lower:
                     map_city_to_display = "Delhi"
                 elif "chennai" in query_lower or "chennai" in ai_response_lower:

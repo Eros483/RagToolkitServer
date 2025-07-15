@@ -13,4 +13,12 @@ start "Frontend App" cmd /k "call %USERPROFILE%\anaconda3\Scripts\activate.bat &
 echo Both applications are starting...
 echo Backend will be available at: http://localhost:8000
 echo Frontend will be available at: http://localhost:8501
+<<<<<<< HEAD
 pause
+=======
+<<<<<<< HEAD
+pause
+=======
+pause
+>>>>>>> 154b8867ef2ffc6145706b3a205784aedc8daf0d
+>>>>>>> d6822043b0ac7ebe74e866ec2f37bdc1d92282a2

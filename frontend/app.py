@@ -38,7 +38,7 @@ class SimpleMapGenerator:
             'bangalore': (12.9716, 77.5946),
             'chennai': (13.0827, 80.2707),
             'kolkata': (22.5726, 88.3639),
-            'asc centre bangalore': (12.9698, 77.7500)  # ASC Centre coordinates
+            'asc centre bangalore': (12.9631, 77.6212)  # ASC Centre coordinates
         }
         return city_centers.get(city_name.lower(), (19.0760, 72.8777))
     

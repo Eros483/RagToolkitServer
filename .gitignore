@@ -20,4 +20,3 @@ dist/
 **/map_cache/
 
 backend/mongodb_sample_images/
-.env

@@ -33,7 +33,7 @@ def translate_text_if_needed(text: str, target_language: str) -> str:
             "target_language": target_language
         }
         
-        response = requests.post(f"{FASTAPI_URL}/translator/translate_text/", json=payload, timeout=180)
+        response = requests.post(f"{FASTAPI_URL}/translator/translate_text/", json=payload)
         response.raise_for_status()
         
         translation_result = response.json()

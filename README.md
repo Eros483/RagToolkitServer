@@ -132,9 +132,12 @@ Entire I/O can be done in both voice and text.
     - Allows upload of a context file document for specialised chat
 5. Max Tokens
     - Allows control over response lengths.
+6. Translation Services
+    - Allows communication in Hindi and Tamil.
 ---
 ## 🧑‍💻 Upcoming Features
 1. Extending supported OSM mapping.
+2. Extending translation services to cover more languages
 ---
 ## 💜 Notes
 1. Must run first instance of the app with internet connection, to ensure all relevant files and dependencies are installed. Subsequent runs can run locally.
